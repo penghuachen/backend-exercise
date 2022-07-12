@@ -16,6 +16,9 @@
     "sequelize": "^6.21.3"
   },
   "devDependencies": {
+    "connect-livereload": "^0.6.1",
+    "livereload": "^0.9.3",
+    "nodemon": "^2.0.19",
     "sequelize-cli": "^6.4.1"
   }
 }
