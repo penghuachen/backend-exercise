@@ -11,6 +11,8 @@ const userController = {
             email,
             password: hashPassword(password),
         })
+
+        res.send('register successfully!');
     },
 }
 
