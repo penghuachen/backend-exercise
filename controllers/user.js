@@ -2,6 +2,7 @@ const db = require('../models');
 const Joi = require('joi');
 const hashPassword = require("../utils/hashPassword.js");
 const validateFields = require("../utils/validateFields.js");
+const sendResponseHandler = require("../utils/sendResponseHandler.js");
 const Users = db.Users;
 
 const userController = {
