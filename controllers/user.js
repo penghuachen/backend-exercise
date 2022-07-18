@@ -9,12 +9,13 @@ const Users = db.Users;
 
 const userController = {
     registerUser: async (req, res) => {
-        const { name, email, password } = req.body;
+        const { name, email, password, age } = req.body;
 
         const schema = Joi.object().keys({
             name: Joi.string().required(),
             email: Joi.string().email().required(),
             password: Joi.string().required(),
+            age: Joi.string(),
         });
 
         // fields validate
@@ -38,6 +39,7 @@ const userController = {
             name,
             email,
             password: hashPassword(password),
+            age
         });
 
         res.send('register successfully!');
