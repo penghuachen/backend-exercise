@@ -2,6 +2,7 @@ const db = require('../models');
 const Joi = require('joi');
 const validateFields = require("../utils/validateFields.js");
 const validateToken = require("../utils/validateToken.js");
+const sendResponseHandler = require("../utils/sendResponseHandler");
 const Products = db.Products;
 
 const productsController = {
@@ -43,6 +44,14 @@ const productsController = {
 
         res.send('product created successfully!');
     },
+    getProductsList: async(req, res) => {
+        // validate token
+        validateToken(req, res);
+
+        const data = await Products.findAll();
+        const formattedData = Object.keys(data).map(key => data[key].dataValues);
+        sendResponseHandler(res, formattedData)
+    }
 }
 
 module.exports = productsController;
