@@ -1,6 +1,6 @@
 const sendResponseHandler = (res, sendData) => {
   res.send({
-    data: { ...sendData }
+    data: sendData
   })
   return;
 };
