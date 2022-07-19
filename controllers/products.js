@@ -6,6 +6,7 @@ const validateToken = require("../utils/validateToken.js");
 const sendResponseHandler = require("../utils/sendResponseHandler");
 const getMatchedData = require("../utils/getMatchedData");
 const generateMetaInformation = require("../utils/generateMetaInformation");
+const getQueries = require("../utils/getQueries");
 const Products = db.Products;
 
 const productsController = {
@@ -48,17 +49,24 @@ const productsController = {
         res.send('product created successfully!');
     },
     getProductsList: async(req, res) => {
-        const { page, size, product_name } = req.query;
+        const { page, size, product_name, product_price } = req.query;
 
         // validate token
-        validateToken(req, res);
+        const isValid = validateToken(req, res);
+        if (!isValid) return;
 
         // get matched list and  meta information
-        const queries = {
+
+        const queriesSchema = {
             product_name: {
                 [Op.eq]: product_name
-            }
+            },
+            product_price: {
+                [Op.eq]: product_price
+            },
         };
+
+        const queries = getQueries(req.query, queriesSchema);
 
         const { data } = await getMatchedData({ db: Products, page, size, queries });
         const { meta } = generateMetaInformation({ total: data.length, page, size });
