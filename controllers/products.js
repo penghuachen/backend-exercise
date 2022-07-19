@@ -1,4 +1,5 @@
 const db = require('../models');
+const { Op } = require("sequelize");
 const Joi = require('joi');
 const validateFields = require("../utils/validateFields.js");
 const validateToken = require("../utils/validateToken.js");
@@ -47,13 +48,19 @@ const productsController = {
         res.send('product created successfully!');
     },
     getProductsList: async(req, res) => {
-        const { page, size } = req.query;
+        const { page, size, product_name } = req.query;
 
         // validate token
         validateToken(req, res);
 
         // get matched list and  meta information
-        const { data } = await getMatchedData({ db: Products, page, size });
+        const queries = {
+            product_name: {
+                [Op.eq]: product_name
+            }
+        };
+
+        const { data } = await getMatchedData({ db: Products, page, size, queries });
         const { meta } = generateMetaInformation({ total: data.length, page, size });
 
         const formattedData = Object.keys(data).map(key => data[key].dataValues);
