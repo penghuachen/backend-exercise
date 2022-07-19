@@ -3,6 +3,8 @@ const Joi = require('joi');
 const validateFields = require("../utils/validateFields.js");
 const validateToken = require("../utils/validateToken.js");
 const sendResponseHandler = require("../utils/sendResponseHandler");
+const getMatchedData = require("../utils/getMatchedData");
+const generateMetaInformation = require("../utils/generateMetaInformation");
 const Products = db.Products;
 
 const productsController = {
@@ -45,12 +47,20 @@ const productsController = {
         res.send('product created successfully!');
     },
     getProductsList: async(req, res) => {
+        const { page, size } = req.query;
+
         // validate token
         validateToken(req, res);
 
-        const data = await Products.findAll();
+        // get matched list and  meta information
+        const { data } = await getMatchedData({ db: Products, page, size });
+        const { meta } = generateMetaInformation({ total: data.length, page, size });
+
         const formattedData = Object.keys(data).map(key => data[key].dataValues);
-        sendResponseHandler(res, formattedData)
+        sendResponseHandler(res, {
+            data: formattedData,
+            meta
+        })
     }
 }
 
