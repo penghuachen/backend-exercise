@@ -98,6 +98,29 @@ const productsController = {
             data: product
         })
     },
+    deleteProduct: async(req, res) => {
+        const { id } = req.params;
+
+        // validate token
+        const isValid = validateToken(req, res);
+        if (!isValid) return;
+
+        // get product
+        const product = await Products.findOne({
+            where: { id }
+        });
+
+        if (!product) {
+            res.status(422).send('該商品不存在');
+            return
+        }
+
+        await Products.destroy({
+            where: { id }
+        });
+
+        res.status(200).send('該商品已成功刪除');
+    },
 }
 
 module.exports = productsController;
