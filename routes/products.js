@@ -12,4 +12,9 @@ router.get('/',async  (req, res, next) => {
   await productsController.getProductsList(req, res)
 });
 
+/* GET product */
+router.get('/:id',async  (req, res, next) => {
+  await productsController.getProduct(req, res)
+});
+
 module.exports = router;
