@@ -57,7 +57,6 @@ const productsController = {
         if (!isValid) return;
 
         // get matched list and  meta information
-
         const queriesSchema = {
             product_name: {
                 [Op.eq]: product_name
@@ -72,7 +71,15 @@ const productsController = {
         const { data } = await getMatchedData({ db: Products, page, size, queries });
         const { meta } = generateMetaInformation({ total: data.length, page, size });
 
-        const formattedData = Object.keys(data).map(key => data[key].dataValues);
+        const formattedData = Object.keys(data).map(key => {
+            for (const dataKey in data[key].dataValues) {
+                if (dataKey === 'product_update_records') {
+                    data[key].dataValues[dataKey] = JSON.parse(data[key].dataValues[dataKey])
+                    break;
+                }
+            }
+            return data[key].dataValues
+        });
         sendResponseHandler(res, {
             data: formattedData,
             meta
@@ -93,6 +100,13 @@ const productsController = {
         if (!product) {
             res.status(422).send('該商品不存在');
             return
+        }
+
+        for (const key in product.dataValues) {
+            if (key === 'product_update_records') {
+                product.dataValues[key] = JSON.parse(product.dataValues[key])
+                break;
+            }
         }
 
         sendResponseHandler(res, {
@@ -154,8 +168,10 @@ const productsController = {
             return Object.keys(req.body)
               .filter(key => product[key])
               .map(key => {
+                  if (product[key] === req.body[key]) return;
                   return `${ user.name } 編輯了 ${ translateFields[key] }，從 ${ product[key] } 改成 ${ req.body[key] }`;
               })
+              .filter(record => record)
         }
 
         const newUpdateRecords = getUpdateRecords(user, product, req)
