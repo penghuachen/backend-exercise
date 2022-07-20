@@ -8,6 +8,7 @@ const getMatchedData = require("../utils/getMatchedData");
 const generateMetaInformation = require("../utils/generateMetaInformation");
 const getQueries = require("../utils/getQueries");
 const Products = db.Products;
+const Users = db.Users;
 
 const productsController = {
     createProduct: async (req, res) => {
@@ -120,6 +121,55 @@ const productsController = {
         });
 
         res.status(200).send('該商品已成功刪除');
+    },
+    updateProduct: async(req, res) => {
+        const { id } = req.params;
+        const { product_name, product_price, note  } = req.body;
+
+        // validate token
+        const decode = validateToken(req, res);
+        if (!decode) return;
+
+        // get user
+        const user = await Users.findOne({
+            where: { id: decode.id }
+        });
+
+        // get product
+        const product = await Products.findOne({
+            where: { id }
+        });
+
+        if (!product) {
+            res.status(422).send('該商品不存在');
+            return
+        }
+
+        function getUpdateRecords(user, product, req) {
+            const translateFields = {
+                product_name: '商品名稱',
+                product_price: '商品價格',
+                note: '備註'
+            }
+            return Object.keys(req.body)
+              .filter(key => product[key])
+              .map(key => {
+                  return `${ user.name } 編輯了 ${ translateFields[key] }，從 ${ product[key] } 改成 ${ req.body[key] }`;
+              })
+        }
+
+        const newUpdateRecords = getUpdateRecords(user, product, req)
+
+        await Products.update({
+            product_name,
+            product_price,
+            note,
+            product_update_records: JSON.stringify([...JSON.parse(product.product_update_records), ...newUpdateRecords ])
+        }, {
+            where: { id }
+        });
+
+        res.status(200).send('該商品更新成功');
     },
 }
 

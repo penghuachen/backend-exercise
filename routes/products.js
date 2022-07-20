@@ -22,4 +22,9 @@ router.delete('/:id',async  (req, res, next) => {
   await productsController.deleteProduct(req, res)
 });
 
+/* UDATE product */
+router.put('/:id',async  (req, res, next) => {
+  await productsController.updateProduct(req, res)
+});
+
 module.exports = router;
